@@ -11,6 +11,7 @@ import (
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/database"
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/handler"
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/repository"
+	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/cloudinary"
 )
 
 type Server struct {
@@ -24,8 +25,13 @@ func NewServer() *http.Server {
 
 	db := database.New()
 
+	cloudinary, err := cloudinary.NewCloudinaryService()
+	if err != nil {
+		panic(err)
+	}
+
 	taskRepository := repository.NewRepository(db)
-	taskHandler := handler.NewHandler(taskRepository)
+	taskHandler := handler.NewHandler(taskRepository, *cloudinary)
 
 	NewServer := &Server{
 		port:    port,
