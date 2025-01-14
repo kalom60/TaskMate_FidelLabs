@@ -3,6 +3,7 @@ module github.com/kalom60/TaskMate_FidelLabs/server
 go 1.23.0
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.3
 	go.mongodb.org/mongo-driver v1.17.2
