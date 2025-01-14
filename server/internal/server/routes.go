@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/middlewares"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -12,9 +13,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	e.Use(middlewares.CheckCookie)
+
 	e.GET("/", s.HelloWorldHandler)
 
 	e.GET("/health", s.HealthHandler)
+
+	e.POST("/task", middlewares.ValidateTask(s.handler.NewTask))
 
 	return e
 }
