@@ -14,10 +14,11 @@ import (
 
 type Service interface {
 	Health() map[string]string
+	GetCollection(databaseName, collectionName string) *mongo.Collection
 }
 
 type service struct {
-	db *mongo.Client
+	client *mongo.Client
 }
 
 var (
@@ -32,7 +33,7 @@ func New() Service {
 	}
 
 	return &service{
-		db: client,
+		client: client,
 	}
 }
 
@@ -40,7 +41,7 @@ func (s *service) Health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	err := s.db.Ping(ctx, nil)
+	err := s.client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("db down: %v", err))
 	}
@@ -48,4 +49,8 @@ func (s *service) Health() map[string]string {
 	return map[string]string{
 		"message": "It's healthy",
 	}
+}
+
+func (s *service) GetCollection(databaseName, collectionName string) *mongo.Collection {
+	return s.client.Database(databaseName).Collection(collectionName)
 }
