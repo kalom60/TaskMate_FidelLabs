@@ -9,6 +9,7 @@ import (
 	models "github.com/kalom60/TaskMate_FidelLabs/server/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var ErrTaskNotFound = errors.New("task not found")
@@ -16,6 +17,7 @@ var ErrTaskNotFound = errors.New("task not found")
 type Repository interface {
 	SaveNewTask(ctx context.Context, task models.Task) error
 	GetTaskByID(ctx context.Context, id string) (*models.Task, error)
+	UpdateTask(ctx context.Context, task *models.Task) error
 }
 
 type repository struct {
@@ -51,4 +53,21 @@ func (r *repository) GetTaskByID(ctx context.Context, id string) (*models.Task, 
 	}
 
 	return &task, nil
+}
+
+func (r *repository) UpdateTask(ctx context.Context, task *models.Task) error {
+	coll := r.client.GetCollection("taskmate", "task")
+
+	filter := bson.M{"id": task.ID}
+	updatedTask := bson.M{"$set": task}
+
+	result, err := coll.UpdateOne(ctx, filter, updatedTask, options.Update().SetUpsert(false))
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return ErrTaskNotFound
+	}
+	return nil
 }
