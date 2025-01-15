@@ -16,6 +16,7 @@ var ErrTaskNotFound = errors.New("task not found")
 
 type Repository interface {
 	SaveNewTask(ctx context.Context, task models.Task) error
+	GetTasks(ctx context.Context) (*[]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (*models.Task, error)
 	UpdateTask(ctx context.Context, task *models.Task) error
 }
@@ -38,6 +39,31 @@ func (r *repository) SaveNewTask(ctx context.Context, task models.Task) error {
 		return fmt.Errorf("error while saving new task: %w", err)
 	}
 	return nil
+}
+
+func (r *repository) GetTasks(ctx context.Context) (*[]models.Task, error) {
+	coll := r.client.GetCollection("taskmate", "task")
+
+	var tasks []models.Task
+	cursor, err := coll.Find(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var task models.Task
+		if err := cursor.Decode(&task); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &tasks, nil
 }
 
 func (r *repository) GetTaskByID(ctx context.Context, id string) (*models.Task, error) {
