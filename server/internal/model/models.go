@@ -5,7 +5,6 @@ import "time"
 type Subtask struct {
 	ID        string    `json:"id" bson:"_id,omitempty"`
 	Title     string    `json:"title" bson:"title"`
-	Status    string    `json:"status" bson:"status"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
 }
