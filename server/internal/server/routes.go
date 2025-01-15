@@ -20,6 +20,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.GET("/health", s.HealthHandler)
 
 	e.POST("/task", middlewares.ValidateTask(s.handler.NewTask))
+	e.POST("/task/:id", middlewares.ValidateSubTask(s.handler.AddSubTask))
 
 	return e
 }
