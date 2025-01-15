@@ -121,9 +121,10 @@ func (h *handler) AddSubTask(c echo.Context) error {
 	}
 
 	var subTask models.Subtask
-
-	if err := c.Bind(&subTask); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input")
+	if v, ok := c.Get("subTask").(models.Subtask); ok {
+		subTask.Title = v.Title
+	} else {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
 	subTask.ID = uuid.New().String()
