@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -70,9 +69,48 @@ func (h *handler) NewTask(c echo.Context) error {
 
 	err = h.repository.SaveNewTask(c.Request().Context(), task)
 	if err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusInternalServerError, "Internal server error")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
 	return c.JSON(http.StatusOK, task)
+}
+
+func (h *handler) AddSubTask(c echo.Context) error {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid task ID")
+	}
+
+	task, err := h.repository.GetTaskByID(c.Request().Context(), id)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	var subTask models.Subtask
+
+	if err := c.Bind(&subTask); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid input")
+	}
+
+	subTask.ID = uuid.New().String()
+	subTask.CreatedAt = time.Now()
+	subTask.UpdatedAt = time.Now()
+
+	task.Subtasks = append(task.Subtasks, subTask)
+
+	err = h.repository.UpdateTask(c.Request().Context(), task)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "SubTask added Successfully",
+	})
 }
