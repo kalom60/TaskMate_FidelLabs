@@ -13,6 +13,8 @@ import (
 
 type Handler interface {
 	NewTask(c echo.Context) error
+	GetTasks(c echo.Context) error
+	AddSubTask(c echo.Context) error
 }
 
 type handler struct {
@@ -73,6 +75,15 @@ func (h *handler) NewTask(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, task)
+}
+
+func (h *handler) GetTasks(c echo.Context) error {
+	tasks, err := h.repository.GetTasks(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	return c.JSON(http.StatusOK, tasks)
 }
 
 func (h *handler) AddSubTask(c echo.Context) error {
