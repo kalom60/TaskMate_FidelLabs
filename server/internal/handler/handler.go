@@ -14,6 +14,7 @@ import (
 type Handler interface {
 	NewTask(c echo.Context) error
 	GetTasks(c echo.Context) error
+	GetTaskByID(c echo.Context) error
 	AddSubTask(c echo.Context) error
 }
 
@@ -84,6 +85,24 @@ func (h *handler) GetTasks(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, tasks)
+}
+
+func (h *handler) GetTaskByID(c echo.Context) error {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid task ID")
+	}
+
+	task, err := h.repository.GetTaskByID(c.Request().Context(), id)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	return c.JSON(http.StatusOK, task)
 }
 
 func (h *handler) AddSubTask(c echo.Context) error {
