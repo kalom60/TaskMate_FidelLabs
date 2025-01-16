@@ -8,6 +8,7 @@ import (
 	models "github.com/kalom60/TaskMate_FidelLabs/server/internal/model"
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/repository"
 	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/cloudinary"
+	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/middlewares"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,6 +18,7 @@ type Handler interface {
 	GetTaskByID(c echo.Context) error
 	AddSubTask(c echo.Context) error
 	AddFiles(c echo.Context) error
+	UpdateTask(c echo.Context) error
 }
 
 type handler struct {
@@ -70,6 +72,8 @@ func (h *handler) NewTask(c echo.Context) error {
 	}
 
 	task.Files = taskFiles
+	task.CreatedAt = time.Now()
+	task.UpdatedAt = time.Now()
 
 	err = h.repository.SaveNewTask(c.Request().Context(), task)
 	if err != nil {
@@ -191,5 +195,56 @@ func (h *handler) AddFiles(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Files added Successfully",
+	})
+}
+
+func (h *handler) UpdateTask(c echo.Context) error {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid task ID")
+	}
+
+	task, err := h.repository.GetTaskByID(c.Request().Context(), id)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	if updates, ok := c.Get("task").(middlewares.UpdateTaskForm); ok {
+		if updates.Title != "" {
+			task.Title = updates.Title
+		}
+		if updates.Description != "" {
+			task.Description = updates.Description
+		}
+		if updates.DueDate != "" {
+			dateString := "1995-11-22T12:00:00Z"
+			dueDate, err := time.Parse(updates.DueDate, dateString)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+			}
+			task.DueDate = dueDate
+		}
+		if updates.Status != "" {
+			task.Status = updates.Status
+		}
+	} else {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	task.UpdatedAt = time.Now()
+	err = h.repository.UpdateTask(c.Request().Context(), task)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Task updated successfully",
 	})
 }
