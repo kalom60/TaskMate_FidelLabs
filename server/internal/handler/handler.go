@@ -16,6 +16,7 @@ type Handler interface {
 	GetTasks(c echo.Context) error
 	GetTaskByID(c echo.Context) error
 	AddSubTask(c echo.Context) error
+	AddFiles(c echo.Context) error
 }
 
 type handler struct {
@@ -49,7 +50,7 @@ func (h *handler) NewTask(c echo.Context) error {
 
 	multipartForm, err := c.MultipartForm()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse form data")
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad Request")
 	}
 
 	files := multipartForm.File["files"]
@@ -143,5 +144,52 @@ func (h *handler) AddSubTask(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "SubTask added Successfully",
+	})
+}
+
+func (h *handler) AddFiles(c echo.Context) error {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid task ID")
+	}
+
+	task, err := h.repository.GetTaskByID(c.Request().Context(), id)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	multipartForm, err := c.MultipartForm()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad Request")
+	}
+
+	files := multipartForm.File["files"]
+	uploadedFiles, _ := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+
+	for _, uploaded := range uploadedFiles {
+		file := models.File{
+			ID:        uuid.New().String(),
+			FileName:  uploaded.DisplayName,
+			FileURL:   uploaded.URL,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		task.Files = append(task.Files, file)
+	}
+
+	err = h.repository.UpdateTask(c.Request().Context(), task)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Files added Successfully",
 	})
 }
