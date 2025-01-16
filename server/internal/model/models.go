@@ -26,4 +26,6 @@ type Task struct {
 	Owner       string    `json:"owner" bson:"owner"`
 	Subtasks    []Subtask `json:"subtasks" bson:"subtasks"`
 	Files       []File    `json:"files" bson:"files"`
+	CreatedAt   time.Time `json:"createdAt" bson:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt" bson:"updatedAt"`
 }
