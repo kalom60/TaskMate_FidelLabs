@@ -21,6 +21,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	e.POST("/task", middlewares.ValidateTask(s.handler.NewTask))
 	e.POST("/task/:id/subtask", middlewares.ValidateSubTask(s.handler.AddSubTask))
+	e.POST("/task/:id/file", middlewares.ValidateFiles(s.handler.AddFiles))
 	e.GET("/task", s.handler.GetTasks)
 	e.GET("/task/:id", s.handler.GetTaskByID)
 
