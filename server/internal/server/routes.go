@@ -24,6 +24,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.POST("/task/:id/file", middlewares.ValidateFiles(s.handler.AddFiles))
 	e.GET("/task", s.handler.GetTasks)
 	e.GET("/task/:id", s.handler.GetTaskByID)
+	e.PATCH("/task/:id", middlewares.ValidateUpdateTask(s.handler.UpdateTask))
 
 	return e
 }
