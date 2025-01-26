@@ -230,12 +230,14 @@ func (h *handler) UpdateTask(c echo.Context) error {
 			task.Description = updates.Description
 		}
 		if updates.DueDate != "" {
-			dateString := "1995-11-22T12:00:00Z"
-			dueDate, err := time.Parse(updates.DueDate, dateString)
+			dueDate, err := utils.ParseDueDate(updates.DueDate)
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 			}
 			task.DueDate = dueDate
+		}
+		if updates.Priority != "" {
+			task.Priority = updates.Priority
 		}
 		if updates.Status != "" {
 			task.Status = updates.Status
