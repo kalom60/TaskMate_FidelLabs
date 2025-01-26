@@ -17,6 +17,7 @@ type TaskForm struct {
 	Title       string `validate:"required"`
 	Description string `validate:"required"`
 	DueDate     string `validate:"required,datetime=2006-01-02T15:04:05Z"`
+	Priority    string `validate:"required,oneof='Low' 'Medium' 'High'"`
 	Status      string `validate:"required,oneof='Not Started' 'In Progress' 'Completed'"`
 }
 
@@ -26,6 +27,7 @@ func ValidateTask(next echo.HandlerFunc) echo.HandlerFunc {
 			Title:       c.FormValue("title"),
 			Description: c.FormValue("description"),
 			DueDate:     c.FormValue("dueDate"),
+			Priority:    c.FormValue("priority"),
 			Status:      c.FormValue("status"),
 		}
 
