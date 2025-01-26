@@ -20,6 +20,7 @@ type Handler interface {
 	AddSubTask(c echo.Context) error
 	AddFiles(c echo.Context) error
 	UpdateTask(c echo.Context) error
+	UpdateSubtask(c echo.Context) error
 }
 
 type handler struct {
@@ -253,5 +254,32 @@ func (h *handler) UpdateTask(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Task updated successfully",
+	})
+}
+
+func (h *handler) UpdateSubtask(c echo.Context) error {
+	taskID := c.Param("id")
+	subtaskID := c.Param("subtaskId")
+
+	var subTask models.Subtask
+	if v, ok := c.Get("subTask").(models.Subtask); ok {
+		subTask.Title = v.Title
+	} else {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	err := h.repository.UpdateSubtask(c.Request().Context(), taskID, subtaskID, subTask.Title)
+	if err != nil {
+		if err.Error() == "task not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		} else if err.Error() == "subtask not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "Subtask not found")
+		} else {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Subtask updated successfully",
 	})
 }
