@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/database"
 	models "github.com/kalom60/TaskMate_FidelLabs/server/internal/model"
@@ -19,6 +20,7 @@ type Repository interface {
 	GetTasks(ctx context.Context) (*[]models.Task, error)
 	GetTaskByID(ctx context.Context, id string) (*models.Task, error)
 	UpdateTask(ctx context.Context, task *models.Task) error
+	UpdateSubtask(ctx context.Context, taskID, subtaskID, title string) error
 }
 
 type repository struct {
@@ -95,5 +97,53 @@ func (r *repository) UpdateTask(ctx context.Context, task *models.Task) error {
 	if result.MatchedCount == 0 {
 		return ErrTaskNotFound
 	}
+	return nil
+}
+
+func (r *repository) UpdateSubtask(ctx context.Context, taskID, subtaskID, title string) error {
+	coll := r.client.GetCollection("taskmate", "task")
+
+	var task models.Task
+	filter := bson.M{"id": taskID}
+	err := coll.FindOne(context.TODO(), filter).Decode(&task)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return errors.New("task not found")
+		}
+		return err
+	}
+
+	subtaskExists := false
+	for _, subtask := range task.Subtasks {
+		if subtask.ID == subtaskID {
+			subtaskExists = true
+			break
+		}
+	}
+	if !subtaskExists {
+		return errors.New("subtask not found")
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"subtasks.$[elem].title":    title,
+			"subtasks.$[elem].updateAt": time.Now(),
+		},
+	}
+
+	arrayFilter := options.ArrayFilters{
+		Filters: []interface{}{bson.M{"elem.id": subtaskID}},
+	}
+
+	opts := options.Update().SetArrayFilters(arrayFilter)
+	result, err := coll.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return errors.New("subtask not found")
+	}
+
 	return nil
 }
