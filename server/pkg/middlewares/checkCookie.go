@@ -18,7 +18,10 @@ func CheckCookie(next echo.HandlerFunc) echo.HandlerFunc {
 				Value:    newUserID,
 				Path:     "/",
 				HttpOnly: true,
+				SameSite: http.SameSiteNoneMode,
+				// Secure:   false,
 			}
+
 			c.SetCookie(newCookie)
 		}
 		return next(c)
