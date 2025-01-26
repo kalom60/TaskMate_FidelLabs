@@ -21,6 +21,7 @@ type Handler interface {
 	AddFiles(c echo.Context) error
 	UpdateTask(c echo.Context) error
 	UpdateSubtask(c echo.Context) error
+	DeleteSubtask(c echo.Context) error
 }
 
 type handler struct {
@@ -281,5 +282,25 @@ func (h *handler) UpdateSubtask(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Subtask updated successfully",
+	})
+}
+
+func (h *handler) DeleteSubtask(c echo.Context) error {
+	taskID := c.Param("id")
+	subtaskID := c.Param("subtaskId")
+
+	err := h.repository.DeleteSubtask(c.Request().Context(), taskID, subtaskID)
+	if err != nil {
+		if err.Error() == "task not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		} else if err.Error() == "subtask not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "Subtask not found")
+		} else {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Subtask deleted successfully",
 	})
 }
