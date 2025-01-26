@@ -9,10 +9,11 @@ import (
 )
 
 type UpdateTaskForm struct {
-	Title       string `validate:"omitempty"`
-	Description string `validate:"omitempty"`
-	DueDate     string `validate:"omitempty,datetime=2006-01-02T15:04:05Z"`
-	Status      string `validate:"omitempty,oneof='Not Started' 'In Progress' 'Completed'"`
+	Title       string `json:"title" validate:"omitempty"`
+	Description string `json:"description" validate:"omitempty"`
+	DueDate     string `json:"dueDate" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00"`
+	Priority    string `json:"priority" validate:"omitempty,oneof=Low Medium High"`
+	Status      string `json:"status" validate:"omitempty,oneof='Not Started' 'In Progress' Completed"`
 }
 
 func ValidateUpdateTask(next echo.HandlerFunc) echo.HandlerFunc {
