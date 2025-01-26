@@ -9,6 +9,7 @@ import (
 	"github.com/kalom60/TaskMate_FidelLabs/server/internal/repository"
 	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/cloudinary"
 	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/middlewares"
+	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,9 +35,12 @@ func NewHandler(repository repository.Repository, cloudinary cloudinary.Cloudina
 }
 
 func (h *handler) NewTask(c echo.Context) error {
-	owner, _ := c.Cookie("UserID")
-	dateString := "1995-11-22T12:00:00Z"
-	dueDate, err := time.Parse(c.FormValue("dueDate"), dateString)
+	owner, err := c.Cookie("UserID")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	dueDate, err := utils.ParseDueDate(c.FormValue("dueDate"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
@@ -46,6 +50,7 @@ func (h *handler) NewTask(c echo.Context) error {
 		Title:       c.FormValue("title"),
 		Description: c.FormValue("description"),
 		DueDate:     dueDate,
+		Priority:    c.FormValue("priority"),
 		Status:      c.FormValue("status"),
 		Owner:       owner.Value,
 	}
@@ -56,22 +61,24 @@ func (h *handler) NewTask(c echo.Context) error {
 	}
 
 	files := multipartForm.File["files"]
-	uploadedFiles, _ := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+	if len(files) > 0 {
+		uploadedFiles, _ := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
 
-	var taskFiles []models.File
+		var taskFiles []models.File
 
-	for _, uploaded := range uploadedFiles {
-		file := models.File{
-			ID:        uuid.New().String(),
-			FileName:  uploaded.DisplayName,
-			FileURL:   uploaded.URL,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+		for _, uploaded := range uploadedFiles {
+			file := models.File{
+				ID:        uuid.New().String(),
+				FileName:  uploaded.DisplayName,
+				FileURL:   uploaded.URL,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			}
+			taskFiles = append(taskFiles, file)
 		}
-		taskFiles = append(taskFiles, file)
+		task.Files = taskFiles
 	}
 
-	task.Files = taskFiles
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
 
@@ -80,7 +87,7 @@ func (h *handler) NewTask(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
-	return c.JSON(http.StatusOK, task)
+	return c.JSON(http.StatusCreated, task)
 }
 
 func (h *handler) GetTasks(c echo.Context) error {
