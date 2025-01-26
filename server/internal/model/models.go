@@ -22,6 +22,7 @@ type Task struct {
 	Title       string    `json:"title" bson:"title"`
 	Description string    `json:"description" bson:"description"`
 	DueDate     time.Time `json:"dueDate" bson:"dueDate"`
+	Priority    string    `json:"priority" bson:"priority"`
 	Status      string    `json:"status" bson:"status"`
 	Owner       string    `json:"owner" bson:"owner"`
 	Subtasks    []Subtask `json:"subtasks" bson:"subtasks"`
