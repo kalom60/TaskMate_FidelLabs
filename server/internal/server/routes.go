@@ -32,6 +32,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.GET("/task/:id", s.handler.GetTaskByID)
 	e.PATCH("/task/:id", middlewares.ValidateUpdateTask(s.handler.UpdateTask))
 	e.PATCH("/task/:id/subtask/:subtaskId", middlewares.ValidateSubTask(s.handler.UpdateSubtask))
+	e.DELETE("/task/:id", s.handler.DeleteTask)
 	e.DELETE("/task/:id/subtask/:subtaskId", s.handler.DeleteSubtask)
 
 	return e
