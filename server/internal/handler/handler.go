@@ -21,6 +21,7 @@ type Handler interface {
 	AddFiles(c echo.Context) error
 	UpdateTask(c echo.Context) error
 	UpdateSubtask(c echo.Context) error
+	DeleteTask(c echo.Context) error
 	DeleteSubtask(c echo.Context) error
 }
 
@@ -287,9 +288,41 @@ func (h *handler) UpdateSubtask(c echo.Context) error {
 	})
 }
 
+func (h *handler) DeleteTask(c echo.Context) error {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid task ID",
+		})
+	}
+
+	err := h.repository.DeleteTask(c.Request().Context(), id)
+	if err != nil {
+		if err.Error() == "task not found" {
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"error": "Task not found",
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to delete task",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Task deleted successfully",
+	})
+}
+
 func (h *handler) DeleteSubtask(c echo.Context) error {
 	taskID := c.Param("id")
 	subtaskID := c.Param("subtaskId")
+
+	if _, err := uuid.Parse(taskID); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid task ID",
+		})
+	}
 
 	err := h.repository.DeleteSubtask(c.Request().Context(), taskID, subtaskID)
 	if err != nil {
