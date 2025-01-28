@@ -21,6 +21,7 @@ type Repository interface {
 	GetTaskByID(ctx context.Context, id string) (*models.Task, error)
 	UpdateTask(ctx context.Context, task *models.Task) error
 	UpdateSubtask(ctx context.Context, taskID, subtaskID, title string) error
+	DeleteTask(ctx context.Context, id string) error
 	DeleteSubtask(ctx context.Context, taskID, subtaskID string) error
 }
 
@@ -144,6 +145,23 @@ func (r *repository) UpdateSubtask(ctx context.Context, taskID, subtaskID, title
 
 	if result.ModifiedCount == 0 {
 		return errors.New("subtask not found")
+	}
+
+	return nil
+}
+
+func (r *repository) DeleteTask(ctx context.Context, id string) error {
+	coll := r.client.GetCollection("taskmate", "task")
+
+	filter := bson.M{"id": id}
+
+	result, err := coll.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return errors.New("task not found")
 	}
 
 	return nil
