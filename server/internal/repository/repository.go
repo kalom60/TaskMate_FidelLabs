@@ -23,6 +23,7 @@ type Repository interface {
 	UpdateSubtask(ctx context.Context, taskID, subtaskID, title string) error
 	DeleteTask(ctx context.Context, id string) error
 	DeleteSubtask(ctx context.Context, taskID, subtaskID string) error
+	DeleteTaskFile(ctx context.Context, taskID, fileID string) error
 }
 
 type repository struct {
@@ -188,6 +189,32 @@ func (r *repository) DeleteSubtask(ctx context.Context, taskID, subtaskID string
 	}
 	if result.ModifiedCount == 0 {
 		return errors.New("subtask not found")
+	}
+
+	return nil
+}
+
+func (r *repository) DeleteTaskFile(ctx context.Context, taskID, fileID string) error {
+	coll := r.client.GetCollection("taskmate", "task")
+
+	filter := bson.M{"id": taskID}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"files": bson.M{"id": fileID},
+		},
+	}
+
+	result, err := coll.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return errors.New("task not found")
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("file not found")
 	}
 
 	return nil
