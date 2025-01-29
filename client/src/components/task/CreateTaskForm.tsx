@@ -247,6 +247,7 @@ const CreateTaskForm = ({ onCancel, status }: CreateTaskFormProps) => {
                       <FormLabel>Attach Files</FormLabel>
                       <FormControl>
                         <FileInput
+                          isEdit={false}
                           onFileChange={(files) => setSelectedFiles(files)}
                         />
                       </FormControl>
