@@ -25,7 +25,7 @@ const Task = ({ id }: TaskProps) => {
           </div>
 
           <div className="mt-5">
-            <TaskFileOverview files={task.files} />
+            <TaskFileOverview id={task.id} files={task.files} />
           </div>
         </>
       )}
