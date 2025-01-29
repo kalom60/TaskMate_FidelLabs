@@ -21,7 +21,7 @@ const SubtaskActions = ({ id, subtask, children }: SubtaskActionsProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
-  const { mutate } = useDeleteSubtask();
+  const { mutate } = useDeleteSubtask(id);
 
   const onDelete = () => {
     mutate(
