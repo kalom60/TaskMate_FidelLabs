@@ -16,9 +16,6 @@ const TaskOverview = ({ task }: TaskOverviewProps) => {
   const { isOpen, openModal, closeModal, handleSubmit, isPending } =
     useEditTaskModal({
       id: task.id,
-      onSuccess: () => {
-        console.log("Task edited successfully!");
-      },
     });
 
   const priorityStyles = {

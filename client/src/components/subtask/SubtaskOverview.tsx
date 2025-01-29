@@ -16,9 +16,6 @@ const SubtaskOverview = ({ id, subtasks }: SubtaskOverviewProps) => {
   const { isOpen, openModal, closeModal, handleSubmit, isPending } =
     useCreateSubtaskModal({
       id,
-      onSuccess: () => {
-        console.log("Subtask created successfully!");
-      },
     });
 
   return (

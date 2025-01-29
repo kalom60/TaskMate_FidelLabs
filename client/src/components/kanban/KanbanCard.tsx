@@ -21,9 +21,6 @@ const KanbanCard = ({ task }: KanbanCardProps) => {
   const { isOpen, openModal, closeModal, handleSubmit, isPending } =
     useCreateSubtaskModal({
       id,
-      onSuccess: () => {
-        console.log("Subtask created successfully!");
-      },
     });
 
   const priorityStyles = {

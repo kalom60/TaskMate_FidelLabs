@@ -3,19 +3,14 @@ import { useCreateSubtask } from "@/hooks/useCreateSubtask";
 
 interface UseCreateSubtaskModalProps {
   id: string;
-  onSuccess?: () => void;
 }
 
-export const useCreateSubtaskModal = ({
-  id,
-  onSuccess,
-}: UseCreateSubtaskModalProps) => {
+export const useCreateSubtaskModal = ({ id }: UseCreateSubtaskModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: createSubtask, isPending } = useCreateSubtask({
     onSuccess: () => {
       setIsOpen(false);
-      onSuccess?.();
     },
     onCancel: () => setIsOpen(false),
     id,

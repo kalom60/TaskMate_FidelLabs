@@ -1,17 +1,12 @@
 import { useState } from "react";
 import { useCreateTask } from "./useCreateTask";
 
-interface UseCreateTaskModalProps {
-  onSuccess?: () => void;
-}
-
-export const useCreateTaskModal = ({ onSuccess }: UseCreateTaskModalProps) => {
+export const useCreateTaskModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: createTask, isPending } = useCreateTask({
     onSuccess: () => {
       setIsOpen(false);
-      onSuccess?.();
     },
     onCancel: () => setIsOpen(false),
   });

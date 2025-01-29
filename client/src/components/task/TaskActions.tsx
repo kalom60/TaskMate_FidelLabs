@@ -24,9 +24,6 @@ const TaskActions = ({ task, children }: TaskActionsProps) => {
   const { isOpen, openModal, closeModal, handleSubmit, isPending } =
     useEditTaskModal({
       id: task.id,
-      onSuccess: () => {
-        console.log("Task edited successfully!");
-      },
     });
 
   const { mutate } = useDeleteTask();

@@ -18,11 +18,7 @@ const Tasks = () => {
   const [priority, setPriority] = useState<string | null>(null);
 
   const { isOpen, openModal, closeModal, handleSubmit, isPending } =
-    useCreateTaskModal({
-      onSuccess: () => {
-        console.log("Subtask created successfully!");
-      },
-    });
+    useCreateTaskModal();
 
   const { data: tasks, isLoading } = useGetTasks();
 

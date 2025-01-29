@@ -3,17 +3,15 @@ import { useEditTask } from "./useEditTask";
 import { UpdateTask } from "@/utils/types";
 
 interface UseEditTaskModalProps {
-  onSuccess?: () => void;
   id: string;
 }
 
-export const useEditTaskModal = ({ id, onSuccess }: UseEditTaskModalProps) => {
+export const useEditTaskModal = ({ id }: UseEditTaskModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: editTask, isPending } = useEditTask({
     onSuccess: () => {
       setIsOpen(false);
-      onSuccess?.();
     },
     id,
     onCancel: () => setIsOpen(false),
