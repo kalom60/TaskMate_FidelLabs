@@ -34,6 +34,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.PATCH("/task/:id/subtask/:subtaskId", middlewares.ValidateSubTask(s.handler.UpdateSubtask))
 	e.DELETE("/task/:id", s.handler.DeleteTask)
 	e.DELETE("/task/:id/subtask/:subtaskId", s.handler.DeleteSubtask)
+	e.DELETE("/task/:id/file/:fileId", s.handler.DeleteTaskFile)
 
 	return e
 }
