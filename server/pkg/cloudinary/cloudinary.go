@@ -88,3 +88,34 @@ func (c *Cloudinary) UploadNewTaskFiles(ctx context.Context, files []*multipart.
 
 	return uploadedFiles, nil
 }
+
+func (c *Cloudinary) DeleteTaskFile(ctx context.Context, fileID string) error {
+	result, err := c.cld.Admin.DeleteAssets(ctx, admin.DeleteAssetsParams{
+		PublicIDs:    []string{fileID},
+		DeliveryType: "upload",
+	})
+	if err != nil || result.Deleted[fileID] != "deleted" {
+		return fmt.Errorf("error while deleting file on cloudinary: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Cloudinary) DeleteTaskFiles(ctx context.Context, taskID string, fileIDs []string) error {
+	if len(fileIDs) > 0 {
+		_, err := c.cld.Admin.DeleteAssets(ctx, admin.DeleteAssetsParams{
+			PublicIDs:    fileIDs,
+			DeliveryType: "upload",
+		})
+		if err != nil {
+			return fmt.Errorf("error while deleting files on cloudinary: %w", err)
+		}
+
+		_, err = c.cld.Admin.DeleteFolder(ctx, admin.DeleteFolderParams{Folder: fmt.Sprintf("taskmate/%s", taskID)})
+		if err != nil {
+			return fmt.Errorf("error while deleting file folder on cloudinary: %w", err)
+		}
+	}
+
+	return nil
+}
