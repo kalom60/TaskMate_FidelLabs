@@ -10,12 +10,19 @@ import { DataTable } from "../table/DataTable";
 import { columns } from "../table/Column";
 import { Task, TaskStatus } from "@/utils/types";
 import DataKanban from "../kanban/DataKanban";
+import { useCreateTaskModal } from "@/hooks/useCreateTaskModal";
 
 const Tasks = () => {
-  const [open, setOpen] = useState<boolean>(false);
   const [view, setView] = useState<string>("table");
   const [status, setStatus] = useState<string | null>(null);
   const [priority, setPriority] = useState<string | null>(null);
+
+  const { isOpen, openModal, closeModal, handleSubmit, isPending } =
+    useCreateTaskModal({
+      onSuccess: () => {
+        console.log("Subtask created successfully!");
+      },
+    });
 
   const { data: tasks, isLoading } = useGetTasks();
 
@@ -57,7 +64,7 @@ const Tasks = () => {
             <Button
               size={"sm"}
               className="w-full lg:w-auto"
-              onClick={() => setOpen(true)}
+              onClick={openModal}
             >
               <PlusIcon className="size-4 mr-2" />
               New
@@ -86,7 +93,12 @@ const Tasks = () => {
         </div>
       </Tabs>
 
-      <CreateTaskModal open={open} onOpenChange={() => setOpen(false)} />
+      <CreateTaskModal
+        isOpen={isOpen}
+        onClose={closeModal}
+        onCreate={handleSubmit}
+        isPending={isPending}
+      />
     </>
   );
 };
