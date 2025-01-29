@@ -5,15 +5,21 @@ import OverviewProperty from "../OverviewProperty";
 import { Badge } from "../ui/badge";
 import { PencilIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useState } from "react";
 import EditTaskModal from "./EditTaskModal";
+import { useEditTaskModal } from "@/hooks/useEditTaskModal";
 
 interface TaskOverviewProps {
   task: Task;
 }
 
 const TaskOverview = ({ task }: TaskOverviewProps) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const { isOpen, openModal, closeModal, handleSubmit, isPending } =
+    useEditTaskModal({
+      id: task.id,
+      onSuccess: () => {
+        console.log("Task edited successfully!");
+      },
+    });
 
   const priorityStyles = {
     Low: {
@@ -34,11 +40,7 @@ const TaskOverview = ({ task }: TaskOverviewProps) => {
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <CardTitle className="text-lg">Overview</CardTitle>
-          <Button
-            size={"sm"}
-            variant={"secondary"}
-            onClick={() => setOpen(true)}
-          >
+          <Button size={"sm"} variant={"secondary"} onClick={openModal}>
             <PencilIcon className="size-4 mr-2" />
             Edit
           </Button>
@@ -72,8 +74,10 @@ const TaskOverview = ({ task }: TaskOverviewProps) => {
       </CardContent>
 
       <EditTaskModal
-        open={open}
-        onOpenChange={() => setOpen(false)}
+        isOpen={isOpen}
+        onClose={closeModal}
+        onEdit={handleSubmit}
+        isPending={isPending}
         task={task}
       />
     </Card>
