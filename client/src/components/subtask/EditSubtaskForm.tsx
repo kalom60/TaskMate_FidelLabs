@@ -24,7 +24,7 @@ interface EditSubtaskFormProps {
 }
 
 const EditSubtaskForm = ({ id, subtask, onCancel }: EditSubtaskFormProps) => {
-  const { mutate } = useEditSubtask(() => onCancel(false));
+  const { mutate } = useEditSubtask(() => onCancel(false), id);
   const { id: subtaskId } = subtask;
 
   const form = useForm<z.infer<typeof createSubtaskSchema>>({
