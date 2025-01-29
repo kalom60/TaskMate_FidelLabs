@@ -1,18 +1,31 @@
-import { Task } from "@/utils/types";
+import { Task, UpdateTask } from "@/utils/types";
 import { Dialog, DialogContent } from "../ui/dialog";
 import EditTaskForm from "./EditTaskForm";
 
 interface EditTaskModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onEdit: (updatedTask: UpdateTask) => void;
+  isPending: boolean;
   task: Task;
 }
 
-const EditTaskModal = ({ open, onOpenChange, task }: EditTaskModalProps) => {
+const EditTaskModal = ({
+  isOpen,
+  onEdit,
+  onClose,
+  isPending,
+  task,
+}: EditTaskModalProps) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-lg p-0 border-none overflow-y-auto hide-scrollbar max-h-[85vh]">
-        <EditTaskForm task={task} onCancel={onOpenChange} />
+        <EditTaskForm
+          task={task}
+          onEdit={onEdit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </DialogContent>
     </Dialog>
   );

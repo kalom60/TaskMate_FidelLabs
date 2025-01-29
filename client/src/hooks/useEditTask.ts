@@ -3,7 +3,17 @@ import { UpdateTask } from "@/utils/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export const useEditTask = (onCancel: () => void, id: string) => {
+interface UseEditTaskOptions {
+  id: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export const useEditTask = ({
+  id,
+  onSuccess,
+  onCancel,
+}: UseEditTaskOptions) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -19,7 +29,13 @@ export const useEditTask = (onCancel: () => void, id: string) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["task", { id }] });
 
-      onCancel();
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      if (onCancel) {
+        onCancel();
+      }
     },
     onError: () => {
       toast.error("Failed to edit task");

@@ -29,16 +29,20 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Task, TaskPriority, TaskStatus, UpdateTask } from "@/utils/types";
-import { useEditTask } from "@/hooks/useEditTask";
 
 interface EditTaskFormProps {
   task: Task;
-  onCancel: (open: boolean) => void;
+  onEdit: (updatedTask: UpdateTask) => void;
+  onClose: () => void;
+  isPending: boolean;
 }
 
-const EditTaskForm = ({ task, onCancel }: EditTaskFormProps) => {
-  const { mutate } = useEditTask(() => onCancel(false), task.id);
-
+const EditTaskForm = ({
+  task,
+  onEdit,
+  onClose,
+  isPending,
+}: EditTaskFormProps) => {
   const form = useForm<z.infer<typeof createTaskSchema>>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
@@ -51,7 +55,6 @@ const EditTaskForm = ({ task, onCancel }: EditTaskFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof createTaskSchema>) => {
-    const { id } = task;
     const updatedTask: UpdateTask = {
       title: values.title,
       description: values.description,
@@ -60,7 +63,7 @@ const EditTaskForm = ({ task, onCancel }: EditTaskFormProps) => {
       dueDate: values.dueDate ? values.dueDate.toISOString() : "",
     };
 
-    mutate({ updatedTask, id });
+    onEdit(updatedTask);
   };
 
   return (
@@ -240,12 +243,12 @@ const EditTaskForm = ({ task, onCancel }: EditTaskFormProps) => {
                 type="button"
                 size={"lg"}
                 variant={"secondary"}
-                onClick={() => onCancel(false)}
+                onClick={onClose}
               >
                 Cancel
               </Button>
               <Button type="submit" size={"lg"}>
-                Edit Task
+                {isPending ? "Editing..." : "Editing Task"}
               </Button>
             </div>
           </form>

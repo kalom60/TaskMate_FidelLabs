@@ -9,8 +9,9 @@ import { ExternalLinkIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import EditTaskModal from "./EditTaskModal";
 import { Task } from "@/utils/types";
-import DeleteConfirmation from "../kanban/DeleteConfirmation";
+import DeleteConfirmation from "../DeleteConfirmation";
 import { useDeleteTask } from "@/hooks/useDeleteTask";
+import { useEditTaskModal } from "@/hooks/useEditTaskModal";
 
 interface TaskActionsProps {
   task: Task;
@@ -18,8 +19,15 @@ interface TaskActionsProps {
 }
 
 const TaskActions = ({ task, children }: TaskActionsProps) => {
-  const [open, setOpen] = useState<boolean>(false);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
+
+  const { isOpen, openModal, closeModal, handleSubmit, isPending } =
+    useEditTaskModal({
+      id: task.id,
+      onSuccess: () => {
+        console.log("Task edited successfully!");
+      },
+    });
 
   const { mutate } = useDeleteTask();
 
@@ -56,7 +64,7 @@ const TaskActions = ({ task, children }: TaskActionsProps) => {
           </Link>
 
           <DropdownMenuItem
-            onClick={() => setOpen(true)}
+            onClick={openModal}
             disabled={false}
             className="font-medium p-[10px]"
           >
@@ -76,8 +84,10 @@ const TaskActions = ({ task, children }: TaskActionsProps) => {
       </DropdownMenu>
 
       <EditTaskModal
-        open={open}
-        onOpenChange={() => setOpen(false)}
+        isOpen={isOpen}
+        onClose={closeModal}
+        onEdit={handleSubmit}
+        isPending={isPending}
         task={task}
       />
 
