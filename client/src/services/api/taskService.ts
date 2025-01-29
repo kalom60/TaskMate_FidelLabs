@@ -55,3 +55,18 @@ export const deleteSubtask = async (id: string, subtaskId: string) => {
   );
   return response.data;
 };
+
+export const addTaskFile = async (id: string, formData: FormData) => {
+  const response = await axiosInstance.post(`/task/${id}/file`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
+
+export const deleteFile = async (taskId: string, fileId: string) => {
+  const response = await axiosInstance.delete(`/task/${taskId}/file/${fileId}`);
+  return response.data;
+};
