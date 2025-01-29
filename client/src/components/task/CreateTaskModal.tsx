@@ -3,20 +3,29 @@ import CreateTaskForm from "./CreateTaskForm";
 import { Dialog, DialogContent } from "../ui/dialog";
 
 interface CreateTaskModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (task: FormData) => void;
+  isPending: boolean;
   status?: TaskStatus;
 }
 
 const CreateTaskModal = ({
-  open,
-  onOpenChange,
+  isOpen,
+  onCreate,
+  onClose,
+  isPending,
   status,
 }: CreateTaskModalProps) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-lg p-0 border-none overflow-y-auto hide-scrollbar max-h-[85vh]">
-        <CreateTaskForm status={status} onCancel={onOpenChange} />
+        <CreateTaskForm
+          status={status}
+          onCreate={onCreate}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </DialogContent>
     </Dialog>
   );

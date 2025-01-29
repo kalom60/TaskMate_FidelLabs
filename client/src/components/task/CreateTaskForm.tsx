@@ -30,16 +30,21 @@ import {
 } from "../ui/select";
 import FileInput from "../file/FileInput";
 import { useState } from "react";
-import { useCreateTask } from "@/hooks/useCreateTask";
 import { TaskStatus } from "@/utils/types";
 
 interface CreateTaskFormProps {
-  onCancel: (open: boolean) => void;
+  onCreate: (task: FormData) => void;
+  onClose: () => void;
+  isPending: boolean;
   status?: TaskStatus;
 }
 
-const CreateTaskForm = ({ onCancel, status }: CreateTaskFormProps) => {
-  const { mutate } = useCreateTask(() => onCancel(false));
+const CreateTaskForm = ({
+  onCreate,
+  onClose,
+  isPending,
+  status,
+}: CreateTaskFormProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const form = useForm<z.infer<typeof createTaskSchema>>({
@@ -67,7 +72,7 @@ const CreateTaskForm = ({ onCancel, status }: CreateTaskFormProps) => {
       formData.append("files", file);
     });
 
-    mutate(formData);
+    onCreate(formData);
   };
 
   return (
@@ -266,12 +271,12 @@ const CreateTaskForm = ({ onCancel, status }: CreateTaskFormProps) => {
                 type="button"
                 size={"lg"}
                 variant={"secondary"}
-                onClick={() => onCancel(false)}
+                onClick={onClose}
               >
                 Cancel
               </Button>
               <Button type="submit" size={"lg"}>
-                Create Task
+                {isPending ? "Creating..." : "Create Task"}
               </Button>
             </div>
           </form>
