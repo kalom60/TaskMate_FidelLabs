@@ -21,15 +21,10 @@ type service struct {
 	client *mongo.Client
 }
 
-var (
-	host     = os.Getenv("DB_HOST")
-	port     = os.Getenv("DB_PORT")
-	username = os.Getenv("DB_USERNAME")
-	password = os.Getenv("DB_PASSWORD")
-)
+var dbUrl = os.Getenv("DB_URL")
 
 func New() Service {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", username, password, host, port)))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dbUrl))
 	if err != nil {
 		log.Fatal(err)
 	}
