@@ -1,5 +1,5 @@
 import { Task, UpdateTask } from "@/utils/types";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import EditTaskForm from "./EditTaskForm";
 
 interface EditTaskModalProps {
@@ -20,6 +20,7 @@ const EditTaskModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-lg p-0 border-none overflow-y-auto hide-scrollbar max-h-[85vh]">
+        <DialogTitle></DialogTitle>
         <EditTaskForm
           task={task}
           onEdit={onEdit}

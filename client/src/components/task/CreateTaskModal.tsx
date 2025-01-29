@@ -1,6 +1,6 @@
 import { TaskStatus } from "@/utils/types";
 import CreateTaskForm from "./CreateTaskForm";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ const CreateTaskModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-lg p-0 border-none overflow-y-auto hide-scrollbar max-h-[85vh]">
+        <DialogTitle></DialogTitle>
         <CreateTaskForm
           status={status}
           onCreate={onCreate}

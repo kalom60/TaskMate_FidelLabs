@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import CreateSubtaskForm from "./CreateSubtaskForm";
 
 interface CreateSubtaskModalProps {
@@ -17,6 +17,7 @@ const CreateSubtaskModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-lg p-0 border-none overflow-y-auto hide-scrollbar max-h-[40vh]">
+        <DialogTitle></DialogTitle>
         <CreateSubtaskForm
           onCreate={onCreate}
           onClose={onClose}
