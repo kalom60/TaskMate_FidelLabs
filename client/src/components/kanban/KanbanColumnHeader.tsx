@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import CreateTaskModal from "../task/CreateTaskModal";
-import { useState } from "react";
+import { useCreateTaskModal } from "@/hooks/useCreateTaskModal";
 
 interface KanbanColumnHeaderProps {
   board: TaskStatus;
@@ -25,7 +25,8 @@ const statusIconMap: Record<TaskStatus, React.ReactNode> = {
 };
 
 const KanbanColumnHeader = ({ board, taskCount }: KanbanColumnHeaderProps) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const { isOpen, openModal, closeModal, handleSubmit, isPending } =
+    useCreateTaskModal();
   const icon = statusIconMap[board];
 
   return (
@@ -39,7 +40,7 @@ const KanbanColumnHeader = ({ board, taskCount }: KanbanColumnHeaderProps) => {
           </div>
         </div>
         <Button
-          onClick={() => setOpen(true)}
+          onClick={openModal}
           variant={"ghost"}
           size={"icon"}
           className="size-5"
@@ -49,8 +50,10 @@ const KanbanColumnHeader = ({ board, taskCount }: KanbanColumnHeaderProps) => {
       </div>
 
       <CreateTaskModal
-        open={open}
-        onOpenChange={() => setOpen(false)}
+        isOpen={isOpen}
+        onClose={closeModal}
+        onCreate={handleSubmit}
+        isPending={isPending}
         status={board}
       />
     </>
