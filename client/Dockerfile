@@ -3,13 +3,13 @@ FROM node:18.18.0-alpine AS build
 
 WORKDIR /app
 
-COPY client/package.json client/pnpm-lock.yaml client/tsconfig.json ./
+COPY client/package.json client/pnpm-lock.yaml ./
 
 RUN npm install -g pnpm
 
 RUN pnpm install
 
-COPY . .
+COPY ./client /app
 
 RUN pnpm run build
 
