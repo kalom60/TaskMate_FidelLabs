@@ -1,4 +1,4 @@
-# Stage 1: Build the React app
+# Use Node.js image
 FROM node:18.18.0-alpine AS build
 
 WORKDIR /app
