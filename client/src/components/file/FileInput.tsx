@@ -1,15 +1,18 @@
 import { useRef, useState } from "react";
 import { Input } from "../ui/input";
-import { CloudUpload } from "lucide-react";
+import { CloudUpload, X } from "lucide-react";
 import JPG from "/jpg.svg";
 import PNG from "/png.svg";
 import PDF from "/pdf.svg";
+import { File as TaskFile } from "@/utils/types";
 
 interface FileInputProps {
+  files?: TaskFile[];
+  isEdit: boolean;
   onFileChange: (files: File[]) => void; // Expect an array of files
 }
 
-const FileInput = ({ onFileChange }: FileInputProps) => {
+const FileInput = ({ files, isEdit, onFileChange }: FileInputProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,13 +75,27 @@ const FileInput = ({ onFileChange }: FileInputProps) => {
         return;
       }
 
+      if (files && files.length > 0) {
+        const existingFileNames = new Set(
+          files.map((file) => file.fileName.toLocaleLowerCase())
+        );
+        if (existingFileNames.has(file.name.toLowerCase())) {
+          setError(`File "${file.name}" is already added.`);
+          return;
+        }
+      }
+
       newFiles.push(file);
     });
 
-    // Update selected files and call the parent callback
+    if (isEdit) {
+      onFileChange(newFiles);
+      return;
+    }
+
     setSelectedFiles((prev) => {
       const updatedFiles = [...prev, ...newFiles];
-      onFileChange(updatedFiles); // Notify the parent with the selected files
+      onFileChange(updatedFiles);
       return updatedFiles;
     });
   };
@@ -123,26 +140,34 @@ const FileInput = ({ onFileChange }: FileInputProps) => {
       </div>
       {error && <p className="text-red-500 mt-2">{error}</p>}
 
-      <div className="mt-4">
-        {selectedFiles.map((file) => (
-          <div
-            key={file.name}
-            className="flex justify-between items-center border mb-2 p-4 rounded-sm bg-[#f5f8ff]"
-          >
-            <img src={getFileIcon(file.name)} alt="" className="w-12 mr-5" />
-            <div className="flex flex-col justify-between font-medium">
-              <p>{file.name}</p>
-              <p>{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-            </div>
-            <span
-              className="bg-[#fff] w-10 h-10 rounded-xl flex items-center justify-center font-medium text-red-600"
-              onClick={() => removeFile(file.name)}
+      {!isEdit && (
+        <div className="mt-4">
+          {selectedFiles.map((file) => (
+            <div
+              key={file.name}
+              className="flex justify-between items-center border mb-2 p-4 rounded-sm bg-[#f5f8ff]"
             >
-              x
-            </span>
-          </div>
-        ))}
-      </div>
+              <div className="flex items-center space-x-2">
+                <img
+                  src={getFileIcon(file.name)}
+                  alt=""
+                  className="w-12 mr-5"
+                />
+                <div className="flex flex-col justify-between font-medium">
+                  <p>{file.name}</p>
+                  <p>{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                </div>
+              </div>
+              <span
+                className="bg-[#fff] w-10 h-10 rounded-xl flex items-center justify-center font-medium text-red-600 hover:cursor-pointer"
+                onClick={() => removeFile(file.name)}
+              >
+                <X />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
