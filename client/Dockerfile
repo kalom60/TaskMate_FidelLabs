@@ -4,6 +4,7 @@ FROM node:18.18.0-alpine AS build
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
+RUN ls -la
 
 RUN npm install -g pnpm
 RUN pnpm fetch && pnpm install --offline
