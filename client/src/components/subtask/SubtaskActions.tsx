@@ -8,7 +8,7 @@ import {
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { Subtask } from "@/utils/types";
 import EditSubtaskModal from "./EditSubtaskModal";
-import DeleteConfirmation from "../kanban/DeleteConfirmation";
+import DeleteConfirmation from "../DeleteConfirmation";
 import { useDeleteSubtask } from "@/hooks/useDeleteSubtask";
 
 interface SubtaskActionsProps {

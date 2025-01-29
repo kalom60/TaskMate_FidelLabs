@@ -9,7 +9,7 @@ import PNG from "/png.svg";
 import PDF from "/pdf.svg";
 import { useAddTaskFile } from "@/hooks/useAddTaskFile";
 import { useDeleteTaskFile } from "@/hooks/useDeleteTaskFile";
-import DeleteConfirmation from "../kanban/DeleteConfirmation";
+import DeleteConfirmation from "../DeleteConfirmation";
 
 interface TaskFileOverviewProps {
   id: string;
