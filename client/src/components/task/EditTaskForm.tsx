@@ -37,7 +37,7 @@ interface EditTaskFormProps {
 }
 
 const EditTaskForm = ({ task, onCancel }: EditTaskFormProps) => {
-  const { mutate } = useEditTask(() => onCancel(false));
+  const { mutate } = useEditTask(() => onCancel(false), task.id);
 
   const form = useForm<z.infer<typeof createTaskSchema>>({
     resolver: zodResolver(createTaskSchema),
