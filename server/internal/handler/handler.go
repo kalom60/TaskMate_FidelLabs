@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -65,7 +66,10 @@ func (h *handler) NewTask(c echo.Context) error {
 
 	files := multipartForm.File["files"]
 	if len(files) > 0 {
-		uploadedFiles, _ := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+		uploadedFiles, err := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+		if err != nil || len(uploadedFiles) == 0 {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+		}
 
 		var taskFiles []models.File
 
@@ -182,7 +186,14 @@ func (h *handler) AddFiles(c echo.Context) error {
 	}
 
 	files := multipartForm.File["files"]
-	uploadedFiles, _ := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+	uploadedFiles, err := h.cloudinary.UploadNewTaskFiles(c.Request().Context(), files, task.ID)
+	if err != nil || len(uploadedFiles) == 0 {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	if len(uploadedFiles) == 0 {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
 
 	for _, uploaded := range uploadedFiles {
 		file := models.File{
