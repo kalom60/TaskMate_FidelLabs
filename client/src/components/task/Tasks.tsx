@@ -27,7 +27,6 @@ const Tasks = () => {
       tasks?.filter((task: Task) => {
         const matchesStatus = status ? task.status === status : true;
         const matchesPriority = priority ? task.priority === priority : true;
-        console.log(matchesPriority, matchesStatus);
         return matchesStatus && matchesPriority;
       }) ?? []
     );
