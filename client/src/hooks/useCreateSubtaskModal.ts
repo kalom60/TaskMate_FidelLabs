@@ -18,6 +18,7 @@ export const useCreateSubtaskModal = ({
       onSuccess?.();
     },
     onCancel: () => setIsOpen(false),
+    id,
   });
 
   const openModal = () => setIsOpen(true);

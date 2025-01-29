@@ -5,11 +5,13 @@ import { toast } from "sonner";
 interface UseCreateSubtaskOptions {
   onSuccess?: () => void;
   onCancel?: () => void;
+  id: string;
 }
 
 export const useCreateSubtask = ({
   onSuccess,
   onCancel,
+  id,
 }: UseCreateSubtaskOptions) => {
   const queryClient = useQueryClient();
 
@@ -19,13 +21,12 @@ export const useCreateSubtask = ({
     onSuccess: () => {
       toast.success("Subtask created");
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["task", { id }] });
 
-      // Call the onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
       }
 
-      // Call the onCancel callback if provided
       if (onCancel) {
         onCancel();
       }

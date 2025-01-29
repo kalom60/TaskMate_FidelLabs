@@ -1,9 +1,9 @@
 import { editSubtask } from "@/services/api/taskService";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export const useEditSubtask = (onCancel: () => void) => {
-  const queryClient = new QueryClient();
+export const useEditSubtask = (onCancel: () => void, id: string) => {
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
@@ -18,6 +18,7 @@ export const useEditSubtask = (onCancel: () => void) => {
     onSuccess: () => {
       toast.success("Subtask edited");
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["task", { id }] });
 
       onCancel();
     },
