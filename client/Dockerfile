@@ -10,8 +10,6 @@ RUN npm install -g pnpm
 # Generate pnpm-lock.yaml if it doesn't exist
 RUN if [ ! -f pnpm-lock.yaml ]; then pnpm install; fi
 
-COPY pnpm-lock.yaml ./
-
 RUN pnpm install
 
 COPY . .
