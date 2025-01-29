@@ -98,7 +98,12 @@ func (h *handler) NewTask(c echo.Context) error {
 }
 
 func (h *handler) GetTasks(c echo.Context) error {
-	tasks, err := h.repository.GetTasks(c.Request().Context())
+	owner, err := c.Cookie("UserID")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	tasks, err := h.repository.GetTasks(c.Request().Context(), owner.Value)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
