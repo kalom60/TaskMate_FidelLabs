@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -24,6 +23,7 @@ type Handler interface {
 	UpdateSubtask(c echo.Context) error
 	DeleteTask(c echo.Context) error
 	DeleteSubtask(c echo.Context) error
+	DeleteTaskFile(c echo.Context) error
 }
 
 type handler struct {
@@ -75,7 +75,7 @@ func (h *handler) NewTask(c echo.Context) error {
 
 		for _, uploaded := range uploadedFiles {
 			file := models.File{
-				ID:        uuid.New().String(),
+				ID:        uploaded.PublicID,
 				FileName:  uploaded.DisplayName,
 				FileURL:   uploaded.URL,
 				CreatedAt: time.Now(),
@@ -197,7 +197,7 @@ func (h *handler) AddFiles(c echo.Context) error {
 
 	for _, uploaded := range uploadedFiles {
 		file := models.File{
-			ID:        uuid.New().String(),
+			ID:        uploaded.PublicID,
 			FileName:  uploaded.DisplayName,
 			FileURL:   uploaded.URL,
 			CreatedAt: time.Now(),
@@ -308,7 +308,25 @@ func (h *handler) DeleteTask(c echo.Context) error {
 		})
 	}
 
-	err := h.repository.DeleteTask(c.Request().Context(), id)
+	task, err := h.repository.GetTaskByID(c.Request().Context(), id)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	var fileIDs []string
+	for _, file := range task.Files {
+		fileIDs = append(fileIDs, file.ID)
+	}
+
+	err = h.cloudinary.DeleteTaskFiles(c.Request().Context(), id, fileIDs)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	err = h.repository.DeleteTask(c.Request().Context(), id)
 	if err != nil {
 		if err.Error() == "task not found" {
 			return c.JSON(http.StatusNotFound, map[string]string{
@@ -348,5 +366,53 @@ func (h *handler) DeleteSubtask(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Subtask deleted successfully",
+	})
+}
+
+func (h *handler) DeleteTaskFile(c echo.Context) error {
+	taskID := c.Param("id")
+	fileID := c.Param("fileId")
+
+	if _, err := uuid.Parse(taskID); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid task ID")
+	}
+
+	task, err := h.repository.GetTaskByID(c.Request().Context(), taskID)
+	if err != nil {
+		if err == repository.ErrTaskNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	exist := false
+	for _, file := range task.Files {
+		if file.ID == fileID {
+			exist = true
+		}
+	}
+
+	if !exist {
+		return echo.NewHTTPError(http.StatusNotFound, "File not found")
+	}
+
+	err = h.cloudinary.DeleteTaskFile(c.Request().Context(), fileID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+	}
+
+	err = h.repository.DeleteTaskFile(c.Request().Context(), taskID, fileID)
+	if err != nil {
+		if err.Error() == "task not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "Task not found")
+		} else if err.Error() == "file not found" {
+			return echo.NewHTTPError(http.StatusNotFound, "File not found")
+		} else {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "File deleted successfully",
 	})
 }
