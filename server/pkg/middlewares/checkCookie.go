@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -24,9 +23,6 @@ func CheckCookie(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			c.SetCookie(newCookie)
-			fmt.Println("✅ New UserID cookie set:", newUserID)
-		} else {
-			fmt.Println("✅ Existing UserID cookie:", cookie.Value)
 		}
 		return next(c)
 	}

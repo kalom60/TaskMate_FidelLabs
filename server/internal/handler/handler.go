@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -99,17 +98,13 @@ func (h *handler) NewTask(c echo.Context) error {
 }
 
 func (h *handler) GetTasks(c echo.Context) error {
-	fmt.Println("Here 1")
 	owner, err := c.Cookie("UserID")
 	if err != nil {
-		fmt.Println("Here 2", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
 	tasks, err := h.repository.GetTasks(c.Request().Context(), owner.Value)
 	if err != nil {
-		fmt.Println("owner", owner.Value)
-		fmt.Println("Here 2", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
