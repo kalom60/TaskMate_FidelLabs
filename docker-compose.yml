@@ -9,6 +9,7 @@ services:
     environment:
       DB_URL: ${DB_URL}
       CLOUDINARY_URL: ${CLOUDINARY_URL}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
 
   # Frontend React Service (using pnpm)
   client:
