@@ -27,6 +27,7 @@ func New() Service {
 	fmt.Println("db URL", dbUrl)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dbUrl))
 	if err != nil {
+		fmt.Println("here error", err)
 		log.Fatal(err)
 	}
 
