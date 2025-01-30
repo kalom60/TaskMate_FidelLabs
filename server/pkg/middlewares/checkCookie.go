@@ -23,6 +23,9 @@ func CheckCookie(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			c.SetCookie(newCookie)
+			c.Logger().Info("✅ New UserID cookie set:", newUserID)
+		} else {
+			c.Logger().Info("✅ Existing UserID cookie:", cookie.Value)
 		}
 		return next(c)
 	}
