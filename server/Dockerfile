@@ -3,11 +3,11 @@ FROM golang:1.23.0-alpine AS build
 
 WORKDIR /app
 
-COPY server/go.mod server/go.sum ./
+COPY go.mod go.sum ./
 
 RUN go mod tidy
 
-COPY server/ .
+COPY . .
 
 RUN go build -o app ./cmd/api/main.go
 
