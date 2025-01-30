@@ -19,7 +19,7 @@ func CheckCookie(next echo.HandlerFunc) echo.HandlerFunc {
 				Path:     "/",
 				HttpOnly: true,
 				SameSite: http.SameSiteNoneMode,
-				// Secure:   false,
+				Secure:   true,
 			}
 
 			c.SetCookie(newCookie)
