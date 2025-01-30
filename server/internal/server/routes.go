@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	_ "github.com/joho/godotenv/autoload"
+
 	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/middlewares"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
