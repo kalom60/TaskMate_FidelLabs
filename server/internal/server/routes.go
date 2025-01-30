@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/kalom60/TaskMate_FidelLabs/server/pkg/middlewares"
 	"github.com/labstack/echo/v4"
@@ -10,12 +11,14 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
+	allowedOrigins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middlewares.CheckCookie)
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{os.Getenv("ALLOWED_ORIGINS")},
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		ExposeHeaders:    []string{"Authorization"},
