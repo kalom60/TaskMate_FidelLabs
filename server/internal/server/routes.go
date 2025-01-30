@@ -21,6 +21,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true,
 	}))
 
+	e.GET("/", s.HelloWorldHandler)
+	e.HEAD("/", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	e.GET("/health", s.HealthHandler)
+	e.HEAD("/health", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
 	e.POST("/task", middlewares.ValidateTask(s.handler.NewTask))
 	e.POST("/task/:id/subtask", middlewares.ValidateSubTask(s.handler.AddSubTask))
 	e.POST("/task/:id/file", middlewares.ValidateFiles(s.handler.AddFiles))
@@ -33,4 +43,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.DELETE("/task/:id/file/:fileId", s.handler.DeleteTaskFile)
 
 	return e
+}
+
+func (s *Server) HelloWorldHandler(c echo.Context) error {
+	resp := map[string]string{
+		"message": "Hello World!",
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) HealthHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, s.db.Health())
 }
