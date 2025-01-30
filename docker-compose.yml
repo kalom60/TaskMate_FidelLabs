@@ -6,6 +6,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      DB_URL: ${DB_URL}
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
 
   # Frontend React Service (using pnpm)
   client:
@@ -15,6 +19,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_API_URL: http://localhost:8080
+      GO_APP_API_URL: ${GO_APP_API_URL}
     depends_on:
       - server
