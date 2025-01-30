@@ -19,6 +19,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GO_APP_API_URL: ${GO_APP_API_URL}
+      VITE_GO_APP_API_URL: ${VITE_GO_APP_API_URL}
     depends_on:
       - server
