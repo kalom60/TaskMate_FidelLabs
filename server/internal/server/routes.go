@@ -10,13 +10,12 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	clientUrl := os.Getenv("CLIENT_URL")
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middlewares.CheckCookie)
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{clientUrl},
+		AllowOrigins:     []string{os.Getenv("ALLOWED_ORIGINS")},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		ExposeHeaders:    []string{"Authorization"},
