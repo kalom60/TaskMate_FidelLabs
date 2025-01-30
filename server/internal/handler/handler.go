@@ -102,7 +102,7 @@ func (h *handler) GetTasks(c echo.Context) error {
 	fmt.Println("Here 0")
 	owner, err := c.Cookie("UserID")
 	if err != nil {
-		fmt.Println("Here 1")
+		fmt.Println("Here 1", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")
 	}
 
